@@ -1,29 +1,42 @@
+$turns = 0
 function Prompt {
     
+    #-------------------------------------------------------------------------
+    $date = Get-Date 
+    $datep = '## '+ $date.Hour +':'+ $date.Minute +':'+ $date.Second +' ## '
+    $line = ''
+
+    $location = Get-Location  
+    $location = ''+$location+'\ '
+
+    $hidee = '{ H:'+(Get-ChildItem -Hidden).Length+' V:'+(Get-ChildItem).Length +' T:'+((Get-ChildItem).Length+(Get-ChildItem -Hidden).Length)+' } '
+
     $_host = Get-Host
     $_winsize = $_host.UI.RawUI.WindowSize
 
-    $date = Get-Date 
-    $datep = ' < '+$date.Hour+':'+$date.Minute+':'+$date.Second+ ' > '
-    
-    $line = ''
-    for ($i = $datep.Length; $i -lt $_winsize.Width; $i++) {
-        $line = $line + '*'
+    for ($i = ($datep.Length+$location.Length+$hidee.Length); $i -lt $_winsize.Width; $i++) {
+        $line = $line + '#'
     }
-    $line = $datep + $line;
+    
+    $line = Write-Host -ForegroundColor Black -BackgroundColor Gray -NoNewline $datep$location$hidee$line
+    #-------------------------------------------------------------------------
 
+    #-------------------------------------------------------------------------
     if (Get-Command git -ErrorAction SilentlyContinue) {
-        $gitBranch = Get-ASCIICharacter(968)+' '+(git branch --show-current) 
+        $gitBranch = Get-ASCIICharacter(968)
+        if (Test-Path '.git'){
+            $gitBranch = $gitBranch+' '+(git branch --show-current) 
+        }
     }else {
-        $gitBranch = Write-Host -ForegroundColor Red (Get-ASCIICharacter(967)+' ')
+        $gitBranch = ''
     }
+    #-------------------------------------------------------------------------
 
-    $prompt = $line + $gitBranch 
+    #-------------------------------------------------------------------------
+    $prompt = $line + $gitBranch + ' > ' 
+    #-------------------------------------------------------------------------
 
-    $prompt = Write-Host -ForegroundColor Green -NoNewline $prompt 
-    
     $prompt
-    ' '
 }
 
 function Get-ASCIICharacter {
